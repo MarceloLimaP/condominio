@@ -1,6 +1,6 @@
 const router = express.Router()
 
-router.post('/signup', (req, res)  => {
+router.post('/signup', (req, res) => {
     if (validateEmail(req.body.email) && await emailAvaiable(req.body.email) && (checkPasswordStrength(req.body.password) === 4) && (req.body.password == req.body.passwordConfirmation)) {
         const user = req.body
         const passEncrypted = bcrypt.hashSync(req.body.password, saltRounds);
@@ -8,9 +8,9 @@ router.post('/signup', (req, res)  => {
         user.password = passEncrypted
         delete user.passwordConfirmation
         const id = new ObjectId()
-        await createDocument({_id: id, ...user})
+        await createDocument({ _id: id, ...user })
         console.log(id)
-        res.status(201).json({ message: "Utilizador Criado com Sucesso!", _id: id})
+        res.status(201).json({ message: "Utilizador Criado com Sucesso!", _id: id })
     }
     else {
         const resposta = {
@@ -21,7 +21,7 @@ router.post('/signup', (req, res)  => {
         }
         if (req.body.email.length === 0) resposta.errors.email = "Por favor introduza o seu endereço de email."
         else if (!validateEmail(req.body.email)) resposta.errors.email = "Por favor introduza um endereço de email válido."
-        if ( !await emailAvaiable(req.body.email)) resposta.errors.email = "O endereço introduzido já está registado."
+        if (!await emailAvaiable(req.body.email)) resposta.errors.email = "O endereço introduzido já está registado."
         if (checkPasswordStrength(req.body.password) < 4) {
             if (req.body.password.length === 0) resposta.errors.password = "Por favor introduza a sua password."
             else if (req.body.password.length < 8) resposta.errors.password = "A sua password deve ter no mínimo 8 caracteres."
@@ -44,9 +44,9 @@ router.post("/login", (req, res) => {
         delete user.password
         delete user.passwordConfirmation
         delete user.condominios
-        await createSession({token, ...user})
-        res.status(200).json({token})
-    }  
+        await createSession({ token, ...user })
+        res.status(200).json({ token })
+    }
     else if (validatePassword(req.body.email, req.body.password)) res.status(401).json({ message: "O email ou password estão incorretos" })
 })
 
@@ -57,7 +57,7 @@ router.post("/login", (req, res) => {
 
 async function Authorize(req, res, next) {
     const checkToken = await findSessionByToken(req.headers.authorization)
-    if (!checkToken) res.status(403).json({ message: "Não existe nenhuma sessão com este token."})
+    if (!checkToken) res.status(403).json({ message: "Não existe nenhuma sessão com este token." })
     req.user = await findDocumentById(checkToken._id)
     next()
 }
@@ -68,9 +68,9 @@ function formatDate(date) {
         day = '' + d.getDate(),
         year = d.getFullYear();
 
-    if (month.length < 2) 
+    if (month.length < 2)
         month = '0' + month;
-    if (day.length < 2) 
+    if (day.length < 2)
         day = '0' + day;
 
     return [year, month, day].join('-');
